@@ -1,0 +1,31 @@
+services:
+  stalwart-mail:
+    image: stalwartlabs/mail-server:latest
+    restart: unless-stopped
+    container_name: stalwart-mail
+    ports:
+      - "443:443"
+      - "25:25"
+      - "587:587"
+      - "465:465"
+      - "143:143"
+      - "993:993"
+      - "4190:4190"
+      - "110:110"
+      - "995:995"
+      # Only used during initial setup
+      # - "8080:8080"
+    volumes:
+      - stalwart-data:/opt/stalwart-mail
+
+  backup:
+    build: ./backup
+    restart: unless-stopped
+    container_name: backup
+    env_file:
+      - backup.env
+    volumes:
+      - stalwart-data:/data/stalwart-data:ro
+
+volumes:
+  stalwart-data:
