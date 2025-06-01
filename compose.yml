@@ -1,6 +1,6 @@
 services:
   stalwart-mail:
-    image: stalwartlabs/mail-server:latest
+    image: stalwartlabs/stalwart:latest
     restart: unless-stopped
     container_name: stalwart-mail
     ports:
@@ -16,7 +16,7 @@ services:
       # Only used during initial setup
       # - "8080:8080"
     volumes:
-      - stalwart-data:/opt/stalwart-mail
+      - stalwart-data:/opt/stalwart
 
   backup:
     build: ./backup
