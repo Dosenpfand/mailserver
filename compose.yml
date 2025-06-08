@@ -97,10 +97,9 @@ services:
       - "traefik.http.routers.myapp-https.rule=Host(`matheworkout.at`)"
       - "traefik.http.routers.myapp-https.entrypoints=https"
       - "traefik.http.services.myapp-service.loadbalancer.server.port=80"
-    # TODO: !
-    # depends_on:
-    #   matheworkout-postgres:
-    #     condition: service_healthy
+    depends_on:
+      matheworkout-postgres:
+        condition: service_healthy
 
   matheworkout-postgres:
     image: postgres:alpine
@@ -109,13 +108,12 @@ services:
       - matheworkout.env
     volumes:
       - matheworkout-postgres:/var/lib/postgresql/data
-    # TODO: !
-    # healthcheck:
-    #   test: [ "CMD-SHELL", "pg_isready -U db_user -d db_database" ]
-    #   start_period: 10s
-    #   interval: 5s
-    #   timeout: 5s
-    #   retries: 10
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready" ]
+      start_period: 10s
+      interval: 5s
+      timeout: 5s
+      retries: 10
 
 volumes:
   stalwart-data:
