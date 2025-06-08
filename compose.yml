@@ -34,6 +34,8 @@ services:
       - stalwart-data:/data/stalwart-data:ro
       - acme:/data/acme-data:ro
       - certs:/data/certs-data:ro
+      - matheworkout-postgres:/data/matheworkout-postgres-data:ro
+      - matheworkout-uploads:/data/matheworkout-uploads-data:ro
 
   traefik:
     image: traefik:v3
@@ -82,7 +84,42 @@ services:
       - acme:/traefik:ro
       - certs:/output
 
+  matheworkout-app:
+    build: https://github.com/Dosenpfand/matheworkout.git#docker-new
+    restart: unless-stopped
+    env_file:
+      - matheworkout.env
+    volumes:
+      - matheworkout-uploads:/app/app/static/uploads
+      - matheworkout-postgres:/var/lib/postgresql/data
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.myapp-https.rule=Host(`matheworkout.at`)"
+      - "traefik.http.routers.myapp-https.entrypoints=https"
+      - "traefik.http.services.myapp-service.loadbalancer.server.port=80"
+    # TODO: !
+    # depends_on:
+    #   matheworkout-postgres:
+    #     condition: service_healthy
+
+  matheworkout-postgres:
+    image: postgres:alpine
+    restart: unless-stopped
+    env_file:
+      - matheworkout.env
+    volumes:
+      - matheworkout-postgres:/var/lib/postgresql/data
+    # TODO: !
+    # healthcheck:
+    #   test: [ "CMD-SHELL", "pg_isready -U db_user -d db_database" ]
+    #   start_period: 10s
+    #   interval: 5s
+    #   timeout: 5s
+    #   retries: 10
+
 volumes:
   stalwart-data:
   acme:
   certs:
+  matheworkout-uploads:
+  matheworkout-postgres:
