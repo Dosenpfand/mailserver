@@ -1,10 +1,10 @@
 services:
   stalwart-mail:
-    image: stalwartlabs/stalwart:latest
+    image: stalwartlabs/stalwart:v0.12
     restart: unless-stopped
     container_name: stalwart-mail
+    hostname: mail.zug.lol
     ports:
-      - "443:443"
       - "25:25"
       - "587:587"
       - "465:465"
@@ -13,10 +13,16 @@ services:
       - "4190:4190"
       - "110:110"
       - "995:995"
-      # Only used during initial setup
-      # - "8080:8080"
     volumes:
+      - /etc/localtime:/etc/localtime:ro
       - stalwart-data:/opt/stalwart
+      - certs:/data/certs:ro
+    labels:
+      - traefik.enable=true
+      # TODO: Add alternative hostnames?
+      - traefik.http.routers.mailserver.rule=Host(`mail.zug.lol`) || Host(`autodiscover.zug.lol`) || Host(`autoconfig.zug.lol`) || Host(`mta-sts.zug.lol`)
+      - traefik.http.routers.mailserver.entrypoints=https
+      - traefik.http.services.mailserver.loadbalancer.server.port=8080
 
   backup:
     build: ./backup
@@ -26,6 +32,57 @@ services:
       - backup.env
     volumes:
       - stalwart-data:/data/stalwart-data:ro
+      - acme:/data/acme-data:ro
+      - certs:/data/certs-data:ro
+
+  traefik:
+    image: traefik:v3
+    container_name: traefik
+    restart: always
+    ports:
+      - 80:80
+      - 443:443
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
+      - /etc/traefik:/etc/traefik
+      - acme:/etc/certs
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+    environment:
+      # Global settings
+      - TRAEFIK_GLOBAL_CHECKNEWVERSION=true
+      - TRAEFIK_GLOBAL_SENDANONYMOUSUSAGE=false
+      # Certificate resolver
+      - TRAEFIK_CERTIFICATESRESOLVERS_LETSENCRYPT_ACME_KEYTYPE=EC256
+      - TRAEFIK_CERTIFICATESRESOLVERS_LETSENCRYPT_ACME_HTTPCHALLENGE_ENTRYPOINT=http
+      - TRAEFIK_CERTIFICATESRESOLVERS_LETSENCRYPT_ACME_EMAIL=certs@zug.lol # TODO
+      - TRAEFIK_CERTIFICATESRESOLVERS_LETSENCRYPT_ACME_STORAGE=/etc/certs/acme.json
+      # TLS Options
+      - TRAEFIK_TLS_OPTIONS_DEFAULT_MINVERSION=VersionTLS12
+      # Providers
+      - TRAEFIK_PROVIDERS_DOCKER=true
+      - TRAEFIK_PROVIDERS_DOCKER_EXPOSEDBYDEFAULT=false
+      # HTTP entrypoint
+      - TRAEFIK_ENTRYPOINTS_HTTP_ADDRESS=:80
+      - TRAEFIK_ENTRYPOINTS_HTTP_HTTP3_ADVERTISEDPORT=80
+      - TRAEFIK_ENTRYPOINTS_HTTP_HTTP_REDIRECTIONS_ENTRYPOINT_TO=https
+      - TRAEFIK_ENTRYPOINTS_HTTP_HTTP_REDIRECTIONS_ENTRYPOINT_SCHEME=https
+      # HTTPS entrypoint
+      - TRAEFIK_ENTRYPOINTS_HTTPS_ADDRESS=:443
+      - TRAEFIK_ENTRYPOINTS_HTTPS_HTTP3_ADVERTISEDPORT=443
+      - TRAEFIK_ENTRYPOINTS_HTTPS_HTTP_TLS_CERTRESOLVER=letsencrypt
+
+  traefik-certs-dumper:
+    image: ghcr.io/kereis/traefik-certs-dumper:latest
+    container_name: traefik-certs-dumper
+    restart: unless-stopped
+    depends_on:
+      - traefik
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
+      - acme:/traefik:ro
+      - certs:/output
 
 volumes:
   stalwart-data:
+  acme:
+  certs:
