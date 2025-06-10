@@ -19,8 +19,14 @@ services:
       - certs:/data/certs:ro
     labels:
       - traefik.enable=true
-      # TODO: Add alternative hostnames?
-      - traefik.http.routers.mailserver.rule=Host(`mail.zug.lol`) || Host(`autodiscover.zug.lol`) || Host(`autoconfig.zug.lol`) || Host(`mta-sts.zug.lol`)
+      - >
+        traefik.http.routers.mailserver.rule=
+        Host(`mail.zug.lol`) || Host(`autodiscover.zug.lol`) || Host(`autoconfig.zug.lol`) || Host(`mta-sts.zug.lol`) ||
+        Host(`mail.sad.bz`) || Host(`autodiscover.sad.bz`) || Host(`autoconfig.sad.bz`) || Host(`mta-sts.sad.bz`) ||
+        Host(`mail.eswardlicht.org`) || Host(`autodiscover.eswardlicht.org`) || Host(`autoconfig.eswardlicht.org`) || Host(`mta-sts.eswardlicht.org`) ||
+        Host(`mail.gasser.xyz`) || Host(`autodiscover.gasser.xyz`) || Host(`autoconfig.gasser.xyz`) || Host(`mta-sts.gasser.xyz`) ||
+        Host(`mail.matheworkout.at`) || Host(`autodiscover.matheworkout.at`) || Host(`autoconfig.matheworkout.at`) || Host(`mta-sts.matheworkout.at`) ||
+        Host(`mail.slugline.de`) || Host(`autodiscover.slugline.de`) || Host(`autoconfig.slugline.de`) || Host(`mta-sts.slugline.de`)
       - traefik.http.routers.mailserver.entrypoints=https
       - traefik.http.services.mailserver.loadbalancer.server.port=8080
 
@@ -53,6 +59,8 @@ services:
       # Global settings
       - TRAEFIK_GLOBAL_CHECKNEWVERSION=true
       - TRAEFIK_GLOBAL_SENDANONYMOUSUSAGE=false
+      # Log level
+      # - TRAEFIK_LOG_LEVEL=DEBUG
       # Certificate resolver
       - TRAEFIK_CERTIFICATESRESOLVERS_LETSENCRYPT_ACME_KEYTYPE=EC256
       - TRAEFIK_CERTIFICATESRESOLVERS_LETSENCRYPT_ACME_HTTPCHALLENGE_ENTRYPOINT=http
