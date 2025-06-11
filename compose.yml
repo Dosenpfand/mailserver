@@ -117,7 +117,7 @@ services:
     volumes:
       - matheworkout-postgres:/var/lib/postgresql/data
     healthcheck:
-      test: [ "CMD-SHELL", "pg_isready" ]
+      test: [ "CMD-SHELL", "pg_isready -q -U mathesuper -d matheueben"]
       start_period: 10s
       interval: 5s
       timeout: 5s
