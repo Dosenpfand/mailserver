@@ -5,6 +5,7 @@ Container configuration for a mail server setup.
 ## Services
 
 * Mail server
+* WireGuard VPN server
 * Hosting of matheworkout.at
 
 ## Configuration
@@ -46,6 +47,13 @@ SMTP_PORT=
 SMTP_USER=
 SMTP_PASSWORD=
 SMTP_USE_TLS=
+```
+
+### wireguard.env
+
+```
+WG_HOST=
+PASSWORD_HASH= # https://github.com/wg-easy/wg-easy/blob/v14/How_to_generate_an_bcrypt_hash.md
 ```
 
 ### stalwart config.toml

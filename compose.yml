@@ -42,6 +42,7 @@ services:
       - certs:/data/certs-data:ro
       - matheworkout-postgres:/data/matheworkout-postgres-data:ro
       - matheworkout-uploads:/data/matheworkout-uploads-data:ro
+      - wireguard-config:/data/wireguard-config:ro
 
   traefik:
     image: traefik:v3
@@ -123,9 +124,34 @@ services:
       timeout: 5s
       retries: 10
 
+  wireguard:
+    image: ghcr.io/wg-easy/wg-easy
+    restart: unless-stopped
+    environment:
+      - WG_PORT=51822
+    env_file:
+      - wireguard.env
+    volumes:
+      - wireguard-config:/etc/wireguard
+      - /lib/modules:/lib/modules:ro
+    ports:
+      - 51822:51822/udp
+      # TODO:!
+      - 127.0.0.1:51821:51821/tcp
+    cap_add:
+      - NET_ADMIN
+      - SYS_MODULE
+    sysctls:
+      - net.ipv4.ip_forward=1
+      - net.ipv4.conf.all.src_valid_mark=1
+      - net.ipv6.conf.all.disable_ipv6=0
+      - net.ipv6.conf.all.forwarding=1
+      - net.ipv6.conf.default.forwarding=1
+
 volumes:
   stalwart-data:
   acme:
   certs:
   matheworkout-uploads:
   matheworkout-postgres:
+  wireguard-config:
