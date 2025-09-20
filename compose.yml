@@ -94,7 +94,7 @@ services:
       - certs:/output
 
   matheworkout-app:
-    build: https://github.com/Dosenpfand/matheworkout.git#docker-new
+    build: https://github.com/Dosenpfand/matheworkout.git
     restart: unless-stopped
     env_file:
       - matheworkout.env
