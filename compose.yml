@@ -83,11 +83,14 @@ services:
       - TRAEFIK_ENTRYPOINTS_HTTPS_HTTP_TLS_CERTRESOLVER=letsencrypt
 
   traefik-certs-dumper:
-    image: ghcr.io/kereis/traefik-certs-dumper:latest
+    build: ./traefik-certs-dumper
     container_name: traefik-certs-dumper
     restart: unless-stopped
+    env_file:
+      - stalwart.env
     depends_on:
       - traefik
+      - stalwart-mail
     volumes:
       - /etc/localtime:/etc/localtime:ro
       - acme:/traefik:ro

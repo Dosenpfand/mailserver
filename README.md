@@ -65,3 +65,11 @@ certificate.default.private-key = "%{file:/data/certs/mail.zug.lol/key.pem}%"
 certificate.mail.eswardlicht.org.cert = "%{file:/data/certs/mail.eswardlicht.org/cert.pem}%"
 certificate.mail.eswardlicht.org.private-key = "%{file:/data/certs/mail.eswardlicht.org/key.pem}%"
 ```
+
+### stalwart.env
+
+```
+STALWART_USER=
+STALWART_PASSWORD=
+STALWART_HOST=mail.zug.lol
+```
