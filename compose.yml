@@ -114,14 +114,14 @@ services:
         condition: service_healthy
 
   matheworkout-postgres:
-    image: postgres:alpine
+    image: postgres:17-alpine
     restart: unless-stopped
     env_file:
       - matheworkout.env
     volumes:
       - matheworkout-postgres:/var/lib/postgresql/data
     healthcheck:
-      test: [ "CMD-SHELL", "pg_isready -q -U mathesuper -d matheueben"]
+      test: ["CMD-SHELL", "pg_isready -q -U mathesuper -d matheueben"]
       start_period: 10s
       interval: 5s
       timeout: 5s
