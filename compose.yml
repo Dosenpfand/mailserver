@@ -1,6 +1,6 @@
 services:
   stalwart-mail:
-    image: stalwartlabs/stalwart:v0.14
+    image: stalwartlabs/stalwart:v0.15
     restart: unless-stopped
     container_name: stalwart-mail
     hostname: mail.zug.lol
